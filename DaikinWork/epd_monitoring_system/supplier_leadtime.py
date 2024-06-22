@@ -26,8 +26,8 @@ def query_data(host:str, user:str, password, database_name):
 
 
                     df = pd.DataFrame(rows, columns=['id', 'sent_date', 'supplier_name', 'lt'])
-                    df['due_date'] = df.apply(leadtime_calculate, axis= 1)
                     return df
+
 
 
 
@@ -48,8 +48,17 @@ def leadtime_calculate(x):
             count = count + 1
     return  due_date
 
+def determine_leadtime(x, reminder_day):
+    due_date = x['due_date']
+    if due_date < date.today() + timedelta(days=reminder_day):
+        status = 'overdue'
+    else:
+        status = 'on track'
+    return status
 
 
 if __name__ == '__main__':
     df= query_data('localhost', 'root', 'ditepd', 'pcb')
+    df['due_date'] = df.apply(leadtime_calculate, axis=1)
+    df['status'] = df.apply(determine_leadtime, axis=1, reminder_day = 3)
     print(df)
