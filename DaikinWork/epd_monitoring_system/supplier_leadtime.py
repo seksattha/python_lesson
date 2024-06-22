@@ -1,5 +1,6 @@
 import mysql.connector
 import pandas as pd
+from datetime import datetime, date, timedelta
 
 def query_data(host:str, user:str, password, database_name):
     try:
@@ -14,7 +15,7 @@ def query_data(host:str, user:str, password, database_name):
 
                 with con.cursor() as cur:
                     sql_cmd =  """
-                    SELECT date_info.case_id, date_info.sent_date, supplier_info.supplier_name
+                    SELECT date_info.case_id, date_info.sent_date, supplier_info.supplier_name, supplier_info.lt_normal
                     FROM date_info
                     JOIN main ON main.case_id = date_info.case_id
                     JOIN supplier_info ON main.supplier_id = supplier_info.id
@@ -23,8 +24,12 @@ def query_data(host:str, user:str, password, database_name):
                     cur.execute(sql_cmd)
                     rows = cur.fetchall()
 
-                    for row in rows:
-                        print(row)
+
+                    df = pd.DataFrame(rows, columns=['id', 'sent_date', 'supplier_name', 'lt'])
+                    df['due_date'] = df.apply(leadtime_calculate, axis= 1)
+                    return df
+
+
 
 
 
@@ -32,5 +37,19 @@ def query_data(host:str, user:str, password, database_name):
     except Exception as e:
         print(f'error => {e}')
 
+def leadtime_calculate(x):
+    sent_date = x['sent_date']
+    leadtime = x['lt']
+    count = 0
+    due_date =sent_date
+    while count < leadtime:
+        due_date = due_date + timedelta(days=1)
+        if due_date.isoweekday() not in (6,7):
+            count = count + 1
+    return  due_date
+
+
+
 if __name__ == '__main__':
-    query_data('localhost', 'root', 'ditepd', 'pcb' )
+    df= query_data('localhost', 'root', 'ditepd', 'pcb')
+    print(df)
