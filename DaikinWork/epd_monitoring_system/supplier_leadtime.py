@@ -19,7 +19,8 @@ def query_data(host:str, user:str, password, database_name):
                     FROM date_info
                     JOIN main ON main.case_id = date_info.case_id
                     JOIN supplier_info ON main.supplier_id = supplier_info.id
-                    where main.req_supplier = true and sent_date is not null;
+                    where main.req_supplier = true and sent_date is not null and 
+                    finish_date is null;
                     """
                     cur.execute(sql_cmd)
                     rows = cur.fetchall()
@@ -61,4 +62,5 @@ if __name__ == '__main__':
     df= query_data('localhost', 'root', 'ditepd', 'pcb')
     df['due_date'] = df.apply(leadtime_calculate, axis=1)
     df['status'] = df.apply(determine_leadtime, axis=1, reminder_day = 3)
+    df.set_index(['supplier_name', 'status'], inplace=True)
     print(df)
