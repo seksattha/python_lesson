@@ -1,0 +1,7 @@
+port 3306 
+config type Development computer
+
+MYSQL Root password: ditepd
+
+user: seksatta
+password: 1234
