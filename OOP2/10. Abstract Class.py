@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 class Member(ABC):
     def __init__(self, id, fname, lname):
         self.id = id
@@ -7,6 +7,10 @@ class Member(ABC):
 
     def __str__(self):
         return "ID:{} {} {}".format(self.id, self.fname, self.lname)
+
+    @abstractmethod
+    def discount(self):
+        pass
 
 class Gold(Member):
     pass
