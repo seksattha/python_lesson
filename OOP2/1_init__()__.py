@@ -17,6 +17,13 @@ class Medal:
         self.silver = silver
         self.gold = gold
 
+    def total(self): # instance method
+        return self.gold + self.silver + self.bronze
+
+    def dummy(self , a, b):
+        return  a + b
+
+
 
 if __name__ == '__main__':
     # p1 = Person()   # Create new instance
@@ -26,4 +33,12 @@ if __name__ == '__main__':
     # print(p1)
 
     th = Medal('Thailand', 5, 3, 2)
-    print(th)
+    print(th.country)
+    print(th.gold)
+    print(th.silver)
+    print(th.bronze)
+    print(th.total())
+    # เครื่องจะทำการเปลี่ยน code ไปเป็นแบบนี้
+    print(Medal.total(th))
+
+    print(th.dummy(2,3))
