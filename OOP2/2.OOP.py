@@ -20,8 +20,29 @@ class Bmi:
     def __str__(self):
         return f'{self.bmi_calc():.2f} {self.bmi_cat()}'
 
+#ลองทำเล่นๆ ดูว่าถ้าเราสร้าง class person ขึ้นมา โดยให้มี BMI ด้วย
+
+
+class Person:
+    def __init__(self, fname, lname, weight, height):
+        self.fname = fname
+        self.lname = lname
+        self.weight = weight
+        self.height = height
+        self.bmi = Bmi(weight,height) #การทำแบบนี้เรียกว่า composition
+
+    def get_bmi(self):
+        return self.bmi.bmi_cat()
+
+    def __str__(self):
+        return f'Name : {self.fname:} {self.lname} bmi_status = {self.bmi.bmi_cat()}'
+
+
 if __name__ == '__main__':
     a = Bmi(70, 174)
     print(a.bmi_calc())
     print(a.bmi_cat())
     print(a)
+
+    p1 = Person('John', 'Doe', 120, 170)
+    print(p1)
