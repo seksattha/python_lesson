@@ -1,4 +1,5 @@
-class Member:
+from abc import ABC
+class Member(ABC):
     def __init__(self, id, fname, lname):
         self.id = id
         self.fname = fname
