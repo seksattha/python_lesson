@@ -91,7 +91,7 @@ def query_data(host: str, user: str, password: str, database_name: str):
 
 def timeFrame(today, time_backward):
     year  = today.year
-    month = today.month + 2
+    month = today.month
 
     timeframe = []
     for i in range(time_backward):
@@ -110,19 +110,39 @@ def check_date(timeframe, df):
     date_info = {}
     for i in range(len(timeframe) - 1):
         total_receive = 0
+        basic_count = 0
+        sent_count = 0
         for index, row in df.iterrows():
             # Convert 'receive_date' to a date object if it is not already and not None
             receive_date = row['receive_date']
+            basic_date = row.get('basic_date')
+            sent_date = row.get('sent_date')
+
             if receive_date is not None:
                 if isinstance(receive_date, str):
                     receive_date = datetime.strptime(receive_date, '%Y-%m-%d').date()
 
                 if timeframe[i] > receive_date >= timeframe[i + 1]:
                     total_receive += 1
-        date_info[f"{timeframe[i].year}-{timeframe[i].month:02}"] = total_receive
-        print(date_info)
+                    # Check basic_date and sent_date within the same receive_date condition
+                    if basic_date is not None:
+                        if isinstance(basic_date, str):
+                            basic_date = datetime.strptime(basic_date, '%Y-%m-%d').date()
+                        if timeframe[i] > basic_date >= timeframe[i + 1]:
+                            basic_count += 1
 
+                    if sent_date is not None:
+                        if isinstance(sent_date, str):
+                            sent_date = datetime.strptime(sent_date, '%Y-%m-%d').date()
+                        if timeframe[i] > sent_date >= timeframe[i + 1]:
+                            sent_count += 1
+        date_info[timeframe[i]] = {
+            'total_receive': total_receive,
+            'basic_count': basic_count,
+            'sent_count': sent_count
+        }
 
+    print(date_info)
 
 
 
@@ -136,7 +156,7 @@ if __name__ == '__main__':
 
     df = query_data('localhost', 'root', 'ditepd', 'pcb')
 
-    timeframe = timeFrame(date.today(),4)
+    timeframe = timeFrame(date.today(),5)
     check_date(timeframe,df)
 
 
