@@ -152,7 +152,7 @@ class Database:
         self.databaseName = databaseName
 
     def __str__(self):
-        return f'database name = {self.databaseName}, user => {self.user}'
+        return f'connecting database name = {self.databaseName}, user => {self.user}'
 
     def _connect(self):
         try:
@@ -181,6 +181,25 @@ class Database:
             except Exception as e:
                 print(f'error => {e}')
 
+    def query_df(self, sql_cmd):
+        con = self._connect()
+        if con.is_connected():
+            try:
+                    cur = con.cursor()
+                    cur.execute(sql_cmd)
+                    rows = cur.fetchall()
+                    columns = [desc[0] for desc in cur.description]
+                    df = pd.DataFrame(rows, columns= columns)
+                    return df
+            except Exception as e:
+                print(f'error => {e}')
+            finally:
+                con.close()
+                cur.close()
+        return None
+
+
+
 
 
 
@@ -200,6 +219,7 @@ if __name__ == '__main__':
     # df['case_id'] = df.F12.str.extract(r'\bMKG\b-\d{1,2}\b-(\w{4})')
 
     db = Database('localhost', 'root', 'ditepd', 'pcb')
-    db.query("""
-    select * from main;""")
+    print(db)
+    df = db.query_df("""select * from date_info;""")
+    print(df)
 
