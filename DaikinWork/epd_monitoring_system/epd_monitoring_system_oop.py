@@ -181,6 +181,7 @@ class Database:
             except Exception as e:
                 print(f'error => {e}')
 
+
     def query_df(self, sql_cmd):
         con = self._connect()
         if con.is_connected():
@@ -198,28 +199,28 @@ class Database:
                 cur.close()
         return None
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def count_row(self, tableName: str):
+        con = self._connect()
+        if con:
+            cur = con.cursor()
+            sql_cmd = f' select count(*) from {tableName}'
+            cur.execute(sql_cmd)
+            rowCount = cur.fetchone()[0]
+            return rowCount
+        else:
+            return None
 
 
 if __name__ == '__main__':
-    # df = pd.read_excel(r'C:\Users\seksatta\Documents\epd_list.xlsx')
-    # df['case_id'] = df.F12.str.extract(r'\bMKG\b-\d{1,2}\b-(\w{4})')
+    df = pd.read_excel(r'C:\Users\seksatta\Documents\epd_list.xlsx')
+    df['case_id'] = df.F12.str.extract(r'\bMKG\b-\d{1,2}\b-(\w{4})')
+
+
+
 
     db = Database('localhost', 'root', 'ditepd', 'pcb')
-    print(db)
-    df = db.query_df("""select * from date_info;""")
-    print(df)
 
+    if df.shape[0] > db.count_row('market_claim'):
+        print('Start Updating date')
+    else:
+        print('data is up to date')
