@@ -1,3 +1,4 @@
+
 import pandas as pd
 import re
 import mysql.connector as mysql
@@ -210,17 +211,58 @@ class Database:
         else:
             return None
 
+    def check_update(self, df, table_name:str):
+        if df.shape[0] > db.count_row(table_name):
+            print('Start Updating date')
+            mysql_row = db.count_row(table_name)
+            updated_row = ()
+            while mysql_row < df.shape[0]:
+                mysql_row = mysql_row + 1
+                updated_row = updated_row + (mysql_row,)
+            print(updated_row)
+            return  updated_row
+        else:
+            print('data is up to date')
+
+    def insert(self, df, table_name:str):
+        updated_rows = self.check_update(df, table_name)
+        con = self._connect()
+        if con:
+            # sql_cmd = f'insert into {table_name} value(%s)'
+            # for index, row in df.iterrows():
+            #     if index in updated_rows:
+            #         values= row['case_id']
+            #         print(values)
+            #         cur = con.cursor()
+            #         cur.execute(sql_cmd,values)
+
+            con.close()
+
+
+
+class DataframeHandler:
+    def __init__(self, file_path):
+        self.file_path = file_path
+
+
+    def create_dataframeFromExcel(self):
+        df = pd.read_excel(self.file_path)
+        return df
+
+
+
+
+
+
 
 if __name__ == '__main__':
-    df = pd.read_excel(r'C:\Users\seksatta\Documents\epd_list.xlsx')
-    df['case_id'] = df.F12.str.extract(r'\bMKG\b-\d{1,2}\b-(\w{4})')
+    df_handler = DataframeHandler(r'C:\Users\seksatta\Documents\epd_list.xlsx')
+    df = df_handler.create_dataframeFromExcel()
+    df['case_id'] = df.F12.str.extract(r'\bMKG\b-\d{1,2}\b-(\w{4})').astype(int)
 
 
 
 
     db = Database('localhost', 'root', 'ditepd', 'pcb')
 
-    if df.shape[0] > db.count_row('market_claim'):
-        print('Start Updating date')
-    else:
-        print('data is up to date')
+    db.insert(df,'market_claim')
