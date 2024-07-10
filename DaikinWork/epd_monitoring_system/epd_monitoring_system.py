@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 import mysql.connector as mysql
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 
 def insert_data(host: str, user: str, password: str, database_name: str, df):
@@ -93,7 +93,7 @@ def timeFrame(today, time_backward):
     year  = today.year
     month = today.month + 2
 
-    count = 0
+    timeframe = []
     for i in range(time_backward):
 
         if month == 1:
@@ -102,9 +102,25 @@ def timeFrame(today, time_backward):
 
         else:
             month = month -1
-        print(date(year, month, 1))
+        timeframe.append(date(year,month,1))
+    return  timeframe
 
 
+def check_date(timeframe, df):
+    date_info = {}
+    for i in range(len(timeframe) - 1):
+        total_receive = 0
+        for index, row in df.iterrows():
+            # Convert 'receive_date' to a date object if it is not already and not None
+            receive_date = row['receive_date']
+            if receive_date is not None:
+                if isinstance(receive_date, str):
+                    receive_date = datetime.strptime(receive_date, '%Y-%m-%d').date()
+
+                if timeframe[i] > receive_date >= timeframe[i + 1]:
+                    total_receive += 1
+        date_info[f"{timeframe[i].year}-{timeframe[i].month:02}"] = total_receive
+        print(date_info)
 
 
 
@@ -120,6 +136,7 @@ if __name__ == '__main__':
 
     df = query_data('localhost', 'root', 'ditepd', 'pcb')
 
-    timeFrame(date.today(),14)
+    timeframe = timeFrame(date.today(),4)
+    check_date(timeframe,df)
 
 
