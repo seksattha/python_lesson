@@ -4,47 +4,7 @@ import re
 import mysql.connector as mysql
 from datetime import date, timedelta, datetime
 
-from openpyxl import Workbook
 
-
-
-def check_date(timeframe, df):
-    date_info = {}
-    for i in range(len(timeframe) - 1):
-        total_receive = 0
-        basic_count = 0
-        sent_count = 0
-        for index, row in df.iterrows():
-            # Convert 'receive_date' to a date object if it is not already and not None
-            receive_date = row['receive_date']
-            basic_date = row.get('basic_date')
-            sent_date = row.get('sent_date')
-
-            if receive_date is not None:
-                if isinstance(receive_date, str):
-                    receive_date = datetime.strptime(receive_date, '%Y-%m-%d').date()
-
-                if timeframe[i] > receive_date >= timeframe[i + 1]:
-                    total_receive += 1
-                    # Check basic_date and sent_date within the same receive_date condition
-                    if basic_date is not None:
-                        if isinstance(basic_date, str):
-                            basic_date = datetime.strptime(basic_date, '%Y-%m-%d').date()
-                        if timeframe[i] > basic_date >= timeframe[i + 1]:
-                            basic_count += 1
-
-                    if sent_date is not None:
-                        if isinstance(sent_date, str):
-                            sent_date = datetime.strptime(sent_date, '%Y-%m-%d').date()
-                        if timeframe[i] > sent_date >= timeframe[i + 1]:
-                            sent_count += 1
-        date_info[timeframe[i+1]] = {
-            'total_receive': total_receive,
-            'basic_count': basic_count,
-            'sent_count': sent_count
-        }
-
-    print(date_info)
 
 
 
@@ -248,24 +208,7 @@ class dataChecker:
         return date_info
 
 
-class ExcelHandler:
-    def __init__(self, filename):
-        self.filename = filename
-        self.workbook = Workbook()
-        self.sheet = self.workbook.active
-    def set_cell_value(self,data):
-        headers = ["Date"] + list(next(iter(data.values())).keys())
-        for col_num, header in enumerate(headers, start=1):
-            self.sheet.cell(row=1, column=col_num, value=header)
 
-        # Set values for each date
-        for row_num, (date, values) in enumerate(data.items(), start=2):
-            self.sheet.cell(row=row_num, column=1, value=date.strftime("%Y-%m-%d"))
-            for col_num, (key, value) in enumerate(values.items(), start=2):
-                self.sheet.cell(row=row_num, column=col_num, value=value)
-
-    def save_excel(self):
-        self.workbook.save(self.filename)
 
 if __name__ == '__main__':
 
@@ -273,7 +216,7 @@ if __name__ == '__main__':
 
 
 
-    handler = DataframeHandler(r'U:\Confidential\7. Customer claim\5. Master list\Master List FY2024.xlsx')
+    handler = DataframeHandler(r'C:\Users\seksatta\Desktop\Master List FY2024.xlsx')
     df = handler.create_dataframefromExcel('Doc. No.',
                                            "Parts\nreceived date",
                                            "Basic investigate\nreceived date",
@@ -290,17 +233,10 @@ if __name__ == '__main__':
 
     df = handler.convertStringtoDate(df, 'receive_date', 'basic_date', 'send_date', 'supplier_report_date')
 
-
-
-
-
-    userTimeFrame = TimeFrame(date.today(), 10)
+    userTimeFrame = TimeFrame(date.today(), 5)
     timeFrame = userTimeFrame.create_time_frame()
     dataChecker = dataChecker(df, timeFrame)
     data = dataChecker.check_receiveData()
-
-
-    report = ExcelHandler('test.xlsx')
-    report.set_cell_value(data)
-    report.save_excel()
+    df = pd.DataFrame(data)
+    print(df)
 
