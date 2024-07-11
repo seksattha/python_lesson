@@ -202,23 +202,57 @@ class DataframeHandler:
         return df
 
     def tuple_to_list(self, tuple_column):
-        list = []
-        for i in tuple_column:
-            list.append(i)
+        list = [ i for i in tuple_column]
         return  list
+
+class dataChecker:
+    def __init__(self, df, timeFrame):
+        self.timeFrame = timeFrame
+        self.df = df
+
+    def check_receiveData(self):
+        for i in range(len(self.timeFrame)-1):
+            print(f'from{ self.timeFrame[i]} to {self.timeFrame[i+1]}')
+            receiveDate_count = 0
+            for index ,row in self.df.iterrows():
+                if isinstance(row['receive_date'], datetime) and pd.notna(row['receive_date']):
+                    receiveDate = row['receive_date'].to_pydatetime().date()
+                    if self.timeFrame[i] > receiveDate >= self.timeFrame[i+1]:
+                        receiveDate_count = receiveDate_count+ 1
+                else:
+                    pass
+
+            print(f'{self.timeFrame[i+1]} {receiveDate_count}')
+
+
+
+
+
+
+
 if __name__ == '__main__':
 
 
 
-    my_time_frame = TimeFrame(date.today(), 4)
-    my_time_frame.create_time_frame()
+
 
     handler = DataframeHandler(r'C:\Users\seksatta\Desktop\Master List FY2024.xlsx')
     df = handler.create_dataframefromExcel('Doc. No.',
                                            "Parts\nreceived date",
                                            "Basic investigate\nreceived date",
                                            "Actual \nSend\ndate",
-                                           "Report", skiprow = 8, sheet_name = 'Market claim2024')
-    print(df)
+                                           "Report",
+                                           skiprow = 8, sheet_name = 'Market claim2024')
 
+    df.rename(columns={'Parts\nreceived date': 'receive_date',
+                       'Basic investigate\nreceived date': 'basic_date',
+                       'Actual \nSend\ndate': 'send_date',
+                       'Doc. No.': 'id',
+                       'Report': 'supplier_report_date'},
+              inplace=True)
 
+    userTimeFrame = TimeFrame(date(2024,5,1), 10)
+    timeFrame = userTimeFrame.create_time_frame()
+
+    dataChecker = dataChecker(df, timeFrame)
+    dataChecker.check_receiveData()
