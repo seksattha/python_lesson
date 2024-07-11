@@ -192,19 +192,33 @@ class TimeFrame:
 
 class DataframeHandler:
     def __init__(self, filePath):
-        self.filePath = filePath
+        self.filePath =filePath
 
-    def create_dataframeFromExcel(self, *columns, skip_row, sheet_name):
+    def create_dataframefromExcel(self, *columns, skiprow, sheet_name):
 
-    def tuple_to_list(self, column_tuple):
+        print(f'creating from this directory {self.filePath}\nwith skiprow: {skiprow} sheetname :{sheet_name}')
+        column_list = self.tuple_to_list(columns)
+        df = pd.read_excel(self.filePath, usecols = column_list, sheet_name=sheet_name, skiprows=skiprow )
+        return df
+
+    def tuple_to_list(self, tuple_column):
         list = []
-        for i in column_tuple:
+        for i in tuple_column:
             list.append(i)
-
+        return  list
 if __name__ == '__main__':
 
 
 
     my_time_frame = TimeFrame(date.today(), 4)
     my_time_frame.create_time_frame()
+
+    handler = DataframeHandler(r'C:\Users\seksatta\Desktop\Master List FY2024.xlsx')
+    df = handler.create_dataframefromExcel('Doc. No.',
+                                           "Parts\nreceived date",
+                                           "Basic investigate\nreceived date",
+                                           "Actual \nSend\ndate",
+                                           "Report", skiprow = 8, sheet_name = 'Market claim2024')
+    print(df)
+
 
