@@ -5,89 +5,6 @@ import mysql.connector as mysql
 from datetime import date, timedelta, datetime
 
 
-def insert_data(host: str, user: str, password: str, database_name: str, df):
-    try:
-        # Establish connection to MySQL database
-        with mysql.connect(
-                host=host,
-                user=user,
-                password=password,
-                database=database_name
-        ) as con:
-            if con.is_connected():
-                print("Connection to DIT_EPD successfully, \nWELCOME TO EPD DATABASE!")
-
-                # Iterate through each row in the DataFrame and insert into MySQL table 'mpg'
-                with con.cursor() as cur:
-                    sql_cmd = """
-                    INSERT INTO market_claim (case_id)
-                    VALUES (%s)
-                    ON DUPLICATE KEY UPDATE case_id=case_id
-                    """
-                    for index, row in df.iterrows():
-                        values = (
-                            row['case_id'],
-
-                        )
-                        cur.execute(sql_cmd, values)
-
-                # Commit the transaction
-                con.commit()
-                print('Data has been inserted successfully')
-
-    except mysql.Error as e:
-        print(f'Error => {e}')
-
-
-def query_data(host: str, user: str, password: str, database_name: str):
-    try:
-        # Establish connection to MySQL database
-        con = mysql.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=database_name
-        )
-
-        if con.is_connected():
-            print("Connection to DIT_EPD successfully, \nWELCOME TO EPD DATABASE!")
-
-            # Execute the SQL query
-            sql_cmd = """
-            SELECT 
-                m.case_id, 
-                d.receive_date, 
-                d.basic_date, 
-                d.sent_date, 
-                d.finish_date 
-            FROM 
-                market_claim m
-            LEFT JOIN 
-                date_info d
-            ON 
-                m.case_id = d.case_id;
-            """
-
-            cur = con.cursor()
-            cur.execute(sql_cmd)
-            rows = cur.fetchall()
-
-            # Define column names according to the SQL query
-            columns = ['case_id', 'receive_date', 'basic_date', 'sent_date', 'finish_date']
-
-            # Create DataFrame from query results
-            df = pd.DataFrame(rows, columns=columns)
-
-            # Close cursor and connection
-            cur.close()
-            con.close()
-
-            return df
-
-    except mysql.Error as e:
-        print(f'Error => {e}')
-
-
 
 
 def timeFrame(today, time_backward):
@@ -221,12 +138,17 @@ class Database:
                 mysql_row = mysql_row + 1
 
             print(updated_row)
-            return  updated_row
+            return updated_row
         else:
             print('data is up to date')
+            return []
 
     def insert(self, df, table_name:str):
         updated_rows = self.check_update(df, table_name)
+
+        if not updated_rows:
+            print('No data to update')
+            return
         con = self._connect()
 
         if con:
@@ -266,9 +188,28 @@ class DataframeHandler:
         return df
 
 
+class TimeFrame:
+    def __init__(self, start_date, time_backward):
+        self.time_backward = time_backward
+        self.start_date = start_date
 
+    def create_time_frame(self):
+        edit_date = self.start_date
+        time_backward = self.time_backward
+        month = edit_date.month + 1
+        year = edit_date.year
+        print(f'Month = {month}, Year = {year}')
 
-
+        timeframe = []
+        for i in range(1,time_backward+1):
+            timeframe.append(date(year,month,1))
+            if month == 1:
+                month = 12
+                year = year - 1
+            else:
+                month = month - 1
+        print('create time succesfully')
+        print(timeframe)
 
 
 if __name__ == '__main__':
@@ -282,3 +223,7 @@ if __name__ == '__main__':
     db = Database('localhost', 'root', 'ditepd', 'pcb')
 
     db.insert(df,'market_claim')
+
+
+    my_time_frame = TimeFrame(date.today(), 4)
+    my_time_frame.create_time_frame()
