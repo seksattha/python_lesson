@@ -7,22 +7,6 @@ from datetime import date, timedelta, datetime
 
 
 
-def timeFrame(today, time_backward):
-    year  = today.year
-    month = today.month
-
-    timeframe = []
-    for i in range(time_backward):
-        timeframe.append(date(year, month, 1))
-        if month == 1:
-            month = 12
-            year = year - 1
-
-        else:
-            month = month -1
-
-    return  timeframe
-
 
 def check_date(timeframe, df):
     date_info = {}
@@ -178,14 +162,6 @@ class Database:
 
 
 
-class DataframeHandler:
-    def __init__(self, file_path):
-        self.file_path = file_path
-
-
-    def create_dataframeFromExcel(self):
-        df = pd.read_excel(self.file_path)
-        return df
 
 
 class TimeFrame:
@@ -212,18 +188,23 @@ class TimeFrame:
         return timeframe
 
 
+
+
+class DataframeHandler:
+    def __init__(self, filePath):
+        self.filePath = filePath
+
+    def create_dataframeFromExcel(self, *columns, skip_row, sheet_name):
+
+    def tuple_to_list(self, column_tuple):
+        list = []
+        for i in column_tuple:
+            list.append(i)
+
 if __name__ == '__main__':
-    # df_handler = DataframeHandler(r'C:\Users\seksatta\Documents\epd_list.xlsx')
-    # df = df_handler.create_dataframeFromExcel()
-    # df['case_id'] = df.F12.str.extract(r'\bMKG\b-\d{1,2}\b-(\w{4})').astype(int)
-    #
-    #
-    #
-    #
-    # db = Database('localhost', 'root', 'ditepd', 'pcb')
-    #
-    # db.insert(df,'market_claim')
+
 
 
     my_time_frame = TimeFrame(date.today(), 4)
     my_time_frame.create_time_frame()
+
