@@ -209,20 +209,20 @@ class TimeFrame:
             else:
                 month = month - 1
         print('create time succesfully')
-        print(timeframe)
+        return timeframe
 
 
 if __name__ == '__main__':
-    df_handler = DataframeHandler(r'C:\Users\seksatta\Documents\epd_list.xlsx')
-    df = df_handler.create_dataframeFromExcel()
-    df['case_id'] = df.F12.str.extract(r'\bMKG\b-\d{1,2}\b-(\w{4})').astype(int)
-
-
-
-
-    db = Database('localhost', 'root', 'ditepd', 'pcb')
-
-    db.insert(df,'market_claim')
+    # df_handler = DataframeHandler(r'C:\Users\seksatta\Documents\epd_list.xlsx')
+    # df = df_handler.create_dataframeFromExcel()
+    # df['case_id'] = df.F12.str.extract(r'\bMKG\b-\d{1,2}\b-(\w{4})').astype(int)
+    #
+    #
+    #
+    #
+    # db = Database('localhost', 'root', 'ditepd', 'pcb')
+    #
+    # db.insert(df,'market_claim')
 
 
     my_time_frame = TimeFrame(date.today(), 4)
