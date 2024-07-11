@@ -220,17 +220,36 @@ class dataChecker:
         self.df = df
 
     def check_receiveData(self):
+        date_info = {}
         for i in range(len(self.timeFrame)-1):
             receive_count = 0
+            basic_count = 0
+            send_count = 0
+            report_count = 0
             for index ,row in self.df.iterrows():
                 receive_date = row['receive_date']
+                basic_date = row['basic_date']
+                send_date = row['send_date']
+                report_date = row['supplier_report_date']
                 if pd.notna(receive_date):
                     if self.timeFrame[i] > receive_date >= self.timeFrame[i+1]:
                         receive_count = receive_count + 1
+                        if pd.notna(basic_date):
+                            basic_count = basic_count + 1
+                        if pd.notna(send_date):
+                            send_count = send_count + 1
+                        if pd.notna(report_date):
+                            report_count = report_count + 1
                     else:
                         pass
-            print(f'{self.timeFrame[i + 1]} {receive_count}')
-
+            print(f'{self.timeFrame[i + 1]} {receive_count} basic = {basic_count}\n send = {send_count} complete = {report_count}' )
+            date_info[self.timeFrame[i+1]] = {
+                'receive':receive_count,
+                'basic':basic_count,
+                'send': send_count,
+                'report': report_count
+            }
+        print(date_info)
 
 
 
