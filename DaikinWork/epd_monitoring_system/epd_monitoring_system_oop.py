@@ -217,8 +217,9 @@ class Database:
             mysql_row = db.count_row(table_name)
             updated_row = ()
             while mysql_row < df.shape[0]:
-                mysql_row = mysql_row + 1
                 updated_row = updated_row + (mysql_row,)
+                mysql_row = mysql_row + 1
+
             print(updated_row)
             return  updated_row
         else:
@@ -227,15 +228,30 @@ class Database:
     def insert(self, df, table_name:str):
         updated_rows = self.check_update(df, table_name)
         con = self._connect()
-        if con:
-            # sql_cmd = f'insert into {table_name} value(%s)'
-            # for index, row in df.iterrows():
-            #     if index in updated_rows:
-            #         values= row['case_id']
-            #         print(values)
-            #         cur = con.cursor()
-            #         cur.execute(sql_cmd,values)
 
+        if con:
+            cur = con.cursor()
+            for index, row in df.iterrows():
+                if index in updated_rows:
+                    print(f'found! index => {index} value = {row['case_id']}')
+                    values = (
+                        row['case_id'],
+                    )
+
+                    sql_cmd = """ 
+                    insert into market_claim (case_id)
+                    value(%s)
+                    ON DUPLICATE KEY UPDATE case_id=case_id
+                        
+                    """
+                    try:
+                        cur.execute(sql_cmd, values)
+                    except mysql.Error as e:
+                        print(f' error => {e}')
+                    finally:
+                        print('Updated successfully')
+            con.commit()
+            print(updated_rows)
             con.close()
 
 
