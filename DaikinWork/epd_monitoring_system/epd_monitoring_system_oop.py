@@ -208,10 +208,12 @@ class DataframeHandler:
     def convertStringtoDate(self, df, *columns):
         for column in columns:
             try:
-                df[column] = df[column].apply(lambda x: datetime.strptime(x,'%Y-%m-%d') if pd.notna(x) and isinstance(x, str) else x )
-            except Exception as e:
-                print(f'{e}')
+                df[column] = pd.to_datetime(df[column], errors='coerce').dt.date
 
+            except Exception as e:
+                print(f'error as = {e}')
+                pass
+        return df
 class dataChecker:
     def __init__(self, df, timeFrame):
         self.timeFrame = timeFrame
@@ -219,18 +221,15 @@ class dataChecker:
 
     def check_receiveData(self):
         for i in range(len(self.timeFrame)-1):
-            print(f'from{ self.timeFrame[i]} to {self.timeFrame[i+1]}')
-            receiveDate_count = 0
+            receive_count = 0
             for index ,row in self.df.iterrows():
-                if isinstance(row['receive_date'], datetime) and pd.notna(row['receive_date']):
-                    receiveDate = row['receive_date'].to_pydatetime().date()
-                    if self.timeFrame[i] > receiveDate >= self.timeFrame[i+1]:
-                        receiveDate_count = receiveDate_count+ 1
-                else:
-                    pass
-
-            print(f'{self.timeFrame[i+1]} {receiveDate_count}')
-
+                receive_date = row['receive_date']
+                if pd.notna(receive_date):
+                    if self.timeFrame[i] > receive_date >= self.timeFrame[i+1]:
+                        receive_count = receive_count + 1
+                    else:
+                        pass
+            print(f'{self.timeFrame[i + 1]} {receive_count}')
 
 
 
@@ -258,10 +257,11 @@ if __name__ == '__main__':
                        'Report': 'supplier_report_date'},
               inplace=True)
 
-    df['receive_date'] = pd.to_datetime(df['receive_date'], errors='coerce')
-    df['basic_date'] = pd.to_datetime(df['basic_date'], errors='coerce')
-    df['send_date'] = pd.to_datetime(df['send_date'], errors='coerce')
-    df['supplier_report_date'] = pd.to_datetime(df['supplier_report_date'], errors='coerce')
+    df = handler.convertStringtoDate(df, 'receive_date', 'basic_date', 'send_date', 'supplier_report_date')
+
+
+
+
 
     userTimeFrame = TimeFrame(date(2024,5,1), 10)
     timeFrame = userTimeFrame.create_time_frame()
