@@ -4,7 +4,7 @@ import re
 import mysql.connector as mysql
 from datetime import date, timedelta, datetime
 
-
+from openpyxl import Workbook
 
 
 
@@ -45,6 +45,9 @@ def check_date(timeframe, df):
         }
 
     print(date_info)
+
+
+
 
 class Database:
     def __init__(self, host, user, password, databaseName):
@@ -160,10 +163,6 @@ class Database:
             print(updated_rows)
             con.close()
 
-
-
-
-
 class TimeFrame:
     def __init__(self, start_date, time_backward):
         self.time_backward = time_backward
@@ -186,9 +185,6 @@ class TimeFrame:
                 month = month - 1
         print('create time succesfully')
         return timeframe
-
-
-
 
 class DataframeHandler:
     def __init__(self, filePath):
@@ -242,18 +238,34 @@ class dataChecker:
                             report_count = report_count + 1
                     else:
                         pass
-            print(f'{self.timeFrame[i + 1]} {receive_count} basic = {basic_count}\n send = {send_count} complete = {report_count}' )
+            # print(f'{self.timeFrame[i + 1]} {receive_count} basic = {basic_count}\n send = {send_count} complete = {report_count}' )
             date_info[self.timeFrame[i+1]] = {
                 'receive':receive_count,
                 'basic':basic_count,
                 'send': send_count,
                 'report': report_count
             }
-        print(date_info)
+        return date_info
 
 
+class ExcelHandler:
+    def __init__(self, filename):
+        self.filename = filename
+        self.workbook = Workbook()
+        self.sheet = self.workbook.active
+    def set_cell_value(self,data):
+        headers = ["Date"] + list(next(iter(data.values())).keys())
+        for col_num, header in enumerate(headers, start=1):
+            self.sheet.cell(row=1, column=col_num, value=header)
 
+        # Set values for each date
+        for row_num, (date, values) in enumerate(data.items(), start=2):
+            self.sheet.cell(row=row_num, column=1, value=date.strftime("%Y-%m-%d"))
+            for col_num, (key, value) in enumerate(values.items(), start=2):
+                self.sheet.cell(row=row_num, column=col_num, value=value)
 
+    def save_excel(self):
+        self.workbook.save(self.filename)
 
 if __name__ == '__main__':
 
@@ -261,7 +273,7 @@ if __name__ == '__main__':
 
 
 
-    handler = DataframeHandler(r'C:\Users\seksatta\Desktop\Master List FY2024.xlsx')
+    handler = DataframeHandler(r'U:\Confidential\7. Customer claim\5. Master list\Master List FY2024.xlsx')
     df = handler.create_dataframefromExcel('Doc. No.',
                                            "Parts\nreceived date",
                                            "Basic investigate\nreceived date",
@@ -282,7 +294,13 @@ if __name__ == '__main__':
 
 
 
-    userTimeFrame = TimeFrame(date(2024,5,1), 10)
+    userTimeFrame = TimeFrame(date.today(), 10)
     timeFrame = userTimeFrame.create_time_frame()
     dataChecker = dataChecker(df, timeFrame)
-    dataChecker.check_receiveData()
+    data = dataChecker.check_receiveData()
+
+
+    report = ExcelHandler('test.xlsx')
+    report.set_cell_value(data)
+    report.save_excel()
+
