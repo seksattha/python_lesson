@@ -205,6 +205,13 @@ class DataframeHandler:
         list = [ i for i in tuple_column]
         return  list
 
+    def convertStringtoDate(self, df, *columns):
+        for column in columns:
+            try:
+                df[column] = df[column].apply(lambda x: datetime.strptime(x,'%Y-%m-%d') if pd.notna(x) and isinstance(x, str) else x )
+            except Exception as e:
+                print(f'{e}')
+
 class dataChecker:
     def __init__(self, df, timeFrame):
         self.timeFrame = timeFrame
@@ -251,8 +258,12 @@ if __name__ == '__main__':
                        'Report': 'supplier_report_date'},
               inplace=True)
 
+    df['receive_date'] = pd.to_datetime(df['receive_date'], errors='coerce')
+    df['basic_date'] = pd.to_datetime(df['basic_date'], errors='coerce')
+    df['send_date'] = pd.to_datetime(df['send_date'], errors='coerce')
+    df['supplier_report_date'] = pd.to_datetime(df['supplier_report_date'], errors='coerce')
+
     userTimeFrame = TimeFrame(date(2024,5,1), 10)
     timeFrame = userTimeFrame.create_time_frame()
-
     dataChecker = dataChecker(df, timeFrame)
     dataChecker.check_receiveData()
