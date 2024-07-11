@@ -207,8 +207,15 @@ class dataChecker:
             }
         return date_info
 
+    def find_total(self):
+        data = self.check_receiveData()
+        indices = ['receive', 'basic', 'send', 'report']
+        for index in indices:
+            value = 0
 
-
+            for k in data.keys():
+                value = value + data[k][index]
+            print(f'{index} = {value}')
 
 if __name__ == '__main__':
 
@@ -236,7 +243,13 @@ if __name__ == '__main__':
     userTimeFrame = TimeFrame(date.today(), 5)
     timeFrame = userTimeFrame.create_time_frame()
     dataChecker = dataChecker(df, timeFrame)
+    print()
+    print(f'Return part Status')
+    dataChecker.find_total()
+
+
     data = dataChecker.check_receiveData()
     df = pd.DataFrame(data)
     print(df)
+
 
