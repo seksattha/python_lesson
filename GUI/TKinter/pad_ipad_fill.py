@@ -3,7 +3,7 @@ from tkinter import *
 # fill , padx, pady
 
 root = Tk()
-Label(root, text="Mocha").pack(side= TOP)
-Label(root, text="Espresso").pack(side= TOP)
-Label(root, text="Latte").pack(side= TOP)
+Label(root, text="Mocha", bg = "red").pack(side= TOP)
+Label(root, text="Espresso", bg = "green").pack(side= TOP)
+Label(root, text="Latte", bg = "blue").pack(side= TOP)
 root.mainloop()
