@@ -12,6 +12,13 @@ def male_click():
     tv_male.set(male_count)
     tv_total.set(totol_count)
 
+def female_click():
+    global female_count,totol_count
+    female_count = female_count + 1
+    totol_count = totol_count + 1
+    tv_female.set(female_count)
+    tv_total.set(totol_count)
+
 #ทำการสร้าง textvariable
 tv_male = IntVar()
 tv_female = IntVar()
@@ -19,7 +26,7 @@ tv_total  = IntVar()
 
 #กำหนดปุ่มมาสองอัน
 Button(root, text='male', command=male_click).grid(row=0, column = 0)
-Button(root, text='female').grid(row=0, column = 1)
+Button(root, text='female', command=female_click).grid(row=0, column = 1)
 
 Label(root, textvariable=tv_male).grid(row = 1, column = 0)
 Label(root, textvariable=tv_female).grid(row = 1, column = 1)
