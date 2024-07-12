@@ -5,4 +5,9 @@ root = Tk()
 Button(root, text="Click me").pack(side = LEFT)
 # แบบนี้จะกำหนดให้อยู่ทางด้านซ้าย side = LEFT
 
+#หรือจะเขียนในรูปแบบนี้ก็ได้เหมือนกัน
+b1 = Button(root, text="Open")
+b1.pack(side=LEFT)
+
+
 root.mainloop()
