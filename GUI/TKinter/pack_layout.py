@@ -9,5 +9,6 @@ Button(root, text="Click me").pack(side = LEFT)
 b1 = Button(root, text="Open")
 b1.pack(side=LEFT)
 
-
+#ลองเขียนให้มันอยู่ด้านขวาบ้าง
+Button(root, text = "Browse").pack(side = RIGHT)
 root.mainloop()
