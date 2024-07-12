@@ -2,8 +2,15 @@ from tkinter import *
 
 root = Tk()
 
+male_count = 0
+female_count = 0
+totol_count = 0
 def male_click():
-    tv_male.set(10)
+    global male_count,totol_count
+    male_count = male_count + 1
+    totol_count = totol_count + 1
+    tv_male.set(male_count)
+    tv_total.set(totol_count)
 
 #ทำการสร้าง textvariable
 tv_male = IntVar()
