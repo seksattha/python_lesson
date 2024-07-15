@@ -207,6 +207,37 @@ class dataChecker:
             }
         return date_info
 
+    def check_receive_data2(self):
+        date_info = {}
+
+        # Loop through the time frame intervals
+        for i in range(len(self.timeFrame) - 1):
+            # Initialize counters for the current time frame interval
+            receive_count = basic_count = send_count = report_count = 0
+
+            # Get the current and next time frame boundaries
+            start_time = self.timeFrame[i]
+            end_time = self.timeFrame[i + 1]
+
+            # Filter rows within the current time frame interval
+            filtered_df = self.df[(self.df['receive_date'] < start_time) & (self.df['receive_date'] >= end_time)]
+
+            # Count the occurrences of each event
+            receive_count = len(filtered_df)
+            basic_count = filtered_df['basic_date'].notna().sum()
+            send_count = filtered_df['send_date'].notna().sum()
+            report_count = filtered_df['supplier_report_date'].notna().sum()
+
+            # Store the results in the dictionary
+            date_info[end_time] = {
+                'receive': receive_count,
+                'basic': basic_count,
+                'send': send_count,
+                'report': report_count
+            }
+
+        return date_info
+
     def find_total(self):
         data = self.check_receiveData()
         indices = ['receive', 'basic', 'send', 'report']
@@ -248,7 +279,7 @@ if __name__ == '__main__':
     dataChecker.find_total()
 
 
-    data = dataChecker.check_receiveData()
+    data = dataChecker.check_receive_data2()
     df = pd.DataFrame(data)
     print(df)
 
